@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:8080"); // Adjust if hosted remotely
+const socket = io("https://quickserve-5mhc.onrender.com"); // Adjust if hosted remotely
 
 export default function NotificationClient() {
     const [notifications, setNotifications] = useState([]);
