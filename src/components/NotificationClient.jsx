@@ -53,7 +53,7 @@ export default function NotificationClient() {
             <h1 className="text-xl font-bold mb-4">🧾 Notification Panel</h1>
 
             {/* Hidden audio player for notification */}
-            <audio ref={audioRef} src={notiSound} controls className="hidden"></audio>
+            <audio ref={audioRef} src={notiSound} controls className="hidden" preload="auto"></audio>
 
             {/* Optional sending UI */}
             {/* <div className="mb-4 space-y-2">
