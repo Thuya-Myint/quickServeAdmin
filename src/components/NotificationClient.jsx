@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("https://quickserve-5mhc.onrender.com"); // Adjust if hosted remotely
+const socket = io("https://quickserve-5mhc.onrender.com");
 
 export default function NotificationClient() {
     const [notifications, setNotifications] = useState([]);
     const tableRef = useRef("");
     const messageRef = useRef("");
+    const audioRef = useRef(null); // Sound ref
 
     useEffect(() => {
         socket.on("connect", () => {
@@ -19,6 +20,13 @@ export default function NotificationClient() {
 
         socket.on("new-notification", (data) => {
             setNotifications((prev) => [data, ...prev]);
+
+            // 🔊 Play sound on new notification
+            if (audioRef.current) {
+                audioRef.current.play().catch((err) => {
+                    console.warn("Audio play prevented:", err);
+                });
+            }
         });
 
         return () => {
@@ -44,6 +52,10 @@ export default function NotificationClient() {
         <div className="p-4 max-w-lg mx-auto">
             <h1 className="text-xl font-bold mb-4">🧾 Notification Panel</h1>
 
+            {/* Hidden audio player for notification */}
+            <audio ref={audioRef} src="../assets/noti.mp3" preload="auto" />
+
+            {/* Optional sending UI */}
             {/* <div className="mb-4 space-y-2">
                 <input ref={tableRef} placeholder="Table No" className="border p-2 w-full" />
                 <input ref={messageRef} placeholder="Message" className="border p-2 w-full" />
