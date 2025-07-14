@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-
+import notiSound from '../assets/noti.mp3'
 const socket = io("https://quickserve-5mhc.onrender.com");
 
 export default function NotificationClient() {
@@ -53,7 +53,7 @@ export default function NotificationClient() {
             <h1 className="text-xl font-bold mb-4">🧾 Notification Panel</h1>
 
             {/* Hidden audio player for notification */}
-            <audio ref={audioRef} src="../assets/noti.mp3" preload="auto" />
+            <audio ref={audioRef} src={notiSound} controls className="hidden"></audio>
 
             {/* Optional sending UI */}
             {/* <div className="mb-4 space-y-2">
