@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import notiSound from '../assets/noti.mp3'
+import notiSound from '/noti.mp3'
 const socket = io("https://quickserve-5mhc.onrender.com");
 
 export default function NotificationClient() {
