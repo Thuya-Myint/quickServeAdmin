@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import notiSound from '/noti.mp3'
-const socket = io("https://quickserve-5mhc.onrender.com");
+import notiSound from "/noti.mp3";
+
+const socket = io("https://quickserve-5mhc.onrender.com", {
+    transports: ["websocket"],
+    withCredentials: true,
+});
 
 export default function NotificationClient() {
     const [notifications, setNotifications] = useState([]);
-    const tableRef = useRef("");
-    const messageRef = useRef("");
-    const audioRef = useRef(null); // Sound ref
+    const audioRef = useRef(null);
 
     useEffect(() => {
         socket.on("connect", () => {
-            console.log("Connected:", socket.id);
+            console.log("✅ Connected:", socket.id);
         });
 
         socket.on("chat-history", (data) => {
@@ -21,10 +23,9 @@ export default function NotificationClient() {
         socket.on("new-notification", (data) => {
             setNotifications((prev) => [data, ...prev]);
 
-            // 🔊 Play sound on new notification
             if (audioRef.current) {
                 audioRef.current.play().catch((err) => {
-                    console.warn("Audio play prevented:", err);
+                    console.warn("🔇 Audio play prevented:", err);
                 });
             }
         });
@@ -36,43 +37,48 @@ export default function NotificationClient() {
         };
     }, []);
 
-    const handleSend = () => {
-        const tableNo = tableRef.current.value.trim();
-        const message = messageRef.current.value.trim();
-
-        if (!tableNo || !message) return;
-
-        socket.emit("send-notification", { tableNo, message });
-
-        tableRef.current.value = "";
-        messageRef.current.value = "";
-    };
+    // Group notifications by table number
+    const grouped = notifications.reduce((acc, curr) => {
+        if (!acc[curr.tableNo]) acc[curr.tableNo] = [];
+        acc[curr.tableNo].push(curr);
+        return acc;
+    }, {});
 
     return (
-        <div className="p-4 max-w-lg mx-auto">
-            <h1 className="text-xl font-bold mb-4">🧾 Notification Panel</h1>
+        <div className="p-6 max-w-3xl mx-auto bg-gray-100 rounded shadow-md">
+            <h1 className="text-2xl font-bold text-center mb-6 text-blue-800">
+                🧾 Live Table Notifications
+            </h1>
 
-            {/* Hidden audio player for notification */}
-            <audio ref={audioRef} src={notiSound} controls className="hidden" preload="auto"></audio>
+            <audio ref={audioRef} src={notiSound} preload="auto" className="hidden" />
 
-            {/* Optional sending UI */}
-            {/* <div className="mb-4 space-y-2">
-                <input ref={tableRef} placeholder="Table No" className="border p-2 w-full" />
-                <input ref={messageRef} placeholder="Message" className="border p-2 w-full" />
-                <button onClick={handleSend} className="bg-blue-500 text-white px-4 py-2">
-                    Send Notification
-                </button>
-            </div> */}
-
-            <ul className="space-y-2">
-                {notifications.map((n, index) => (
-                    <li key={index} className="border p-2 rounded">
-                        <strong>Table {n.tableNo}:</strong> {n.message}
-                        <br />
-                        <small>{new Date(n.timestamp).toLocaleString()}</small>
-                    </li>
-                ))}
-            </ul>
+            {Object.keys(grouped).length === 0 ? (
+                <p className="text-center text-gray-600">No notifications yet.</p>
+            ) : (
+                <div className="space-y-4">
+                    {Object.entries(grouped).map(([tableNo, messages]) => (
+                        <div key={tableNo} className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+                            <h2 className="text-lg font-semibold text-blue-700 mb-2">
+                                🍽 Table {tableNo}
+                            </h2>
+                            <ul className="space-y-2 pl-2">
+                                {messages.map((m, idx) => (
+                                    <li key={idx} className="text-gray-700">
+                                        <div className="flex justify-between">
+                                            <span>📝 {m.message}</span>
+                                            <span className="text-xs text-gray-500">
+                                                {m.timestamp
+                                                    ? new Date(m.timestamp).toLocaleTimeString()
+                                                    : "No time"}
+                                            </span>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
