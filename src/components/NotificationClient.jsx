@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import { motion, AnimatePresence } from "framer-motion";
 import notiSound from "/noti.mp3";
 
-const socket = io("https://quickserve-5mhc.onrender.com", {
+const socket = io("https://quickserve-t1f6.onrender.com", {
     transports: ["websocket"],
     withCredentials: true,
 });
@@ -117,7 +117,7 @@ export default function NotificationClient() {
             <audio ref={audioRef} src={notiSound} preload="auto" className="hidden" />
 
             {/* Filters */}
-            <div className="mb-6 flex gap-3 items-center">
+            <div className="mb-6 flex flex-wrap gap-3 items-center">
                 <input
                     type="text"
                     value={filterTable}
